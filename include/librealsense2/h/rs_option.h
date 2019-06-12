@@ -81,6 +81,9 @@ extern "C" {
         RS2_OPTION_ENABLE_POSE_JUMPING, /**< Enable position jumping */
         RS2_OPTION_ENABLE_DYNAMIC_CALIBRATION, /**< Enable dynamic calibration */
         RS2_OPTION_DEPTH_OFFSET, /**< Offset from sensor to depth origin in millimetrers*/
+        RS2_OPTION_PROJECTOR_TYPE, /**< Select between the projector and LED on F416 camera, 0 - for projector, 1 - for LED*/
+        RS2_OPTION_LED_PWR_MODE, /**< Set the LED on or off on F416 camera*/
+        RS2_OPTION_LED_PWR, /**< Set the power level of the F416 LED, with 0 meaning projector off*/
         RS2_OPTION_COUNT /**< Number of enumeration values. Not a valid input: intended to be used in for-loops. */
     } rs2_option;
 

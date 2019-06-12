@@ -285,6 +285,9 @@ namespace librealsense
             CASE(ENABLE_POSE_JUMPING)
             CASE(ENABLE_DYNAMIC_CALIBRATION)
             CASE(DEPTH_OFFSET)
+            CASE(PROJECTOR_TYPE)
+            CASE(LED_PWR_MODE)
+            CASE(LED_PWR)
         default: assert(!is_valid(value)); return UNKNOWN_VALUE;
         }
 #undef CASE
