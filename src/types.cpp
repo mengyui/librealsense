@@ -286,8 +286,8 @@ namespace librealsense
             CASE(ENABLE_DYNAMIC_CALIBRATION)
             CASE(DEPTH_OFFSET)
             CASE(PROJECTOR_TYPE)
-            CASE(LED_PWR_MODE)
-            CASE(LED_PWR)
+            CASE(LED_ENABLED)
+            CASE(LED_POWER)
         default: assert(!is_valid(value)); return UNKNOWN_VALUE;
         }
 #undef CASE
