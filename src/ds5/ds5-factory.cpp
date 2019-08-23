@@ -224,7 +224,7 @@ namespace librealsense
     };
 
     class rs416_rgb_device :
-        public ds5_rolling_shutter,
+        public ds5_nonmonochrome,
         public ds5_active,
         public ds5_color,
         public ds5_advanced_mode_base
@@ -236,7 +236,7 @@ namespace librealsense
             bool register_device_notifications)
             : device(ctx, group, register_device_notifications),
             ds5_device(ctx, group),
-            ds5_rolling_shutter(ctx, group),
+            ds5_nonmonochrome(ctx, group),
             ds5_active(ctx, group),
             ds5_color(ctx, group),
             ds5_advanced_mode_base(ds5_device::_hw_monitor, get_depth_sensor()) {}

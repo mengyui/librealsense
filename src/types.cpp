@@ -399,8 +399,8 @@ namespace librealsense
             CASE(MANUAL_WHITE_BALANCE)
             CASE(POWER_LINE_FREQUENCY)
             CASE(LOW_LIGHT_COMPENSATION)
-			CASE(FRAME_LED_POWER)
-			CASE(FRAME_LED_POWER_MODE)
+            CASE(FRAME_LED_POWER)
+            CASE(FRAME_LED_POWER_MODE)
 
         default: assert(!is_valid(value)); return UNKNOWN_VALUE;
         }

@@ -107,10 +107,10 @@ namespace librealsense
         exposure_priority_attribute     = (1u << 4),
         roi_attribute                   = (1u << 5),
         preset_attribute                = (1u << 6),
-		// TODO: Ask mosaab about flag order - also, what about reserved bytes?
-		led_power_attribute				= (1u << 7),
-		led_power_mode_attribute		= (1u << 8),
-		projector_type_attribute		= (1u << 9),
+        // TODO: check about flag order - also, what about reserved bytes?
+        led_power_attribute				= (1u << 7),
+        led_power_mode_attribute		= (1u << 8),
+        projector_type_attribute		= (1u << 9),
     };
 
     /**\brief md_depth_control_attributes - bit mask to find active attributes,
@@ -384,11 +384,11 @@ namespace librealsense
         uint32_t    exposure_roi_top;
         uint32_t    exposure_roi_bottom;
         uint8_t     preset;
-		uint8_t		projectorType;
-		uint16_t	reserved;
-		uint8_t		laserPowerMode;
-		uint8_t		ledPowerMode;
-		uint16_t	ledPower;
+        uint8_t		projectorType;
+        uint16_t	reserved;
+        uint8_t		laserPowerMode;
+        uint8_t		ledPowerMode;
+        uint16_t	ledPower;
     };
 
     REGISTER_MD_TYPE(md_depth_control, md_type::META_DATA_INTEL_DEPTH_CONTROL_ID)
