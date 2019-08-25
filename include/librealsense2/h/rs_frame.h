@@ -58,9 +58,9 @@ typedef enum rs2_frame_metadata_value
     RS2_FRAME_METADATA_MANUAL_WHITE_BALANCE                 , /**< Color image white balance. */
     RS2_FRAME_METADATA_POWER_LINE_FREQUENCY                 , /**< Power Line Frequency for anti-flickering Off/50Hz/60Hz/Auto. */
     RS2_FRAME_METADATA_LOW_LIGHT_COMPENSATION               , /**< Color lowlight compensation. Zero corresponds to switched off. */
-	RS2_FRAME_METADATA_FRAME_LED_POWER						, /**< Led power value 0-360. */
-	RS2_FRAME_METADATA_FRAME_LED_POWER_MODE					, /**< Led power mode. Zero corresponds to Led power switched off and one for switched on. */
-	RS2_FRAME_METADATA_FRAME_PROJECTOR_TYPE					, /**< Projector type - 0 for laser, 1 for LED. */
+	RS2_FRAME_METADATA_FRAME_LED_POWER                      , /**< Led power value 0-360. */
+	RS2_FRAME_METADATA_FRAME_LED_POWER_MODE                 , /**< Led power mode. Zero corresponds to Led power switched off and one for switched on. */
+	RS2_FRAME_METADATA_FRAME_PROJECTOR_TYPE                 , /**< Projector type - 0 for laser, 1 for LED. */
     RS2_FRAME_METADATA_COUNT
 } rs2_frame_metadata_value;
 const char* rs2_frame_metadata_to_string(rs2_frame_metadata_value metadata);

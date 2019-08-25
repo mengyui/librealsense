@@ -401,6 +401,7 @@ namespace librealsense
             CASE(LOW_LIGHT_COMPENSATION)
             CASE(FRAME_LED_POWER)
             CASE(FRAME_LED_POWER_MODE)
+            CASE(FRAME_PROJECTOR_TYPE)
 
         default: assert(!is_valid(value)); return UNKNOWN_VALUE;
         }
