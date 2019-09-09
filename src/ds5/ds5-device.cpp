@@ -784,9 +784,9 @@ namespace librealsense
         depth_ep.register_metadata(RS2_FRAME_METADATA_EXPOSURE_ROI_RIGHT, make_attribute_parser(&md_depth_control::exposure_roi_right, md_depth_control_attributes::roi_attribute, md_prop_offset));
         depth_ep.register_metadata(RS2_FRAME_METADATA_EXPOSURE_ROI_TOP, make_attribute_parser(&md_depth_control::exposure_roi_top, md_depth_control_attributes::roi_attribute, md_prop_offset));
         depth_ep.register_metadata(RS2_FRAME_METADATA_EXPOSURE_ROI_BOTTOM, make_attribute_parser(&md_depth_control::exposure_roi_bottom, md_depth_control_attributes::roi_attribute, md_prop_offset));
-		depth_ep.register_metadata(RS2_FRAME_METADATA_FRAME_LED_POWER, make_attribute_parser(&md_depth_control::ledPower, md_depth_control_attributes::led_power_attribute, md_prop_offset));
-		depth_ep.register_metadata(RS2_FRAME_METADATA_FRAME_LED_POWER_MODE, make_attribute_parser(&md_depth_control::ledPowerMode, md_depth_control_attributes::led_power_mode_attribute, md_prop_offset));
-		depth_ep.register_metadata(RS2_FRAME_METADATA_FRAME_PROJECTOR_TYPE, make_attribute_parser(&md_depth_control::projectorType, md_depth_control_attributes::projector_type_attribute, md_prop_offset));
+        depth_ep.register_metadata(RS2_FRAME_METADATA_FRAME_LED_POWER, make_attribute_parser(&md_depth_control::ledPower, md_depth_control_attributes::led_power_attribute, md_prop_offset));
+        depth_ep.register_metadata(RS2_FRAME_METADATA_FRAME_LED_POWER_MODE, make_attribute_parser(&md_depth_control::ledPowerMode, md_depth_control_attributes::led_power_mode_attribute, md_prop_offset));
+        depth_ep.register_metadata(RS2_FRAME_METADATA_FRAME_PROJECTOR_TYPE, make_attribute_parser(&md_depth_control::projectorType, md_depth_control_attributes::projector_type_attribute, md_prop_offset));
         // md_configuration - will be used for internal validation only
         md_prop_offset = offsetof(metadata_raw, mode) + offsetof(md_depth_mode, depth_y_mode) + offsetof(md_depth_y_normal_mode, intel_configuration);
 
