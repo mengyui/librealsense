@@ -17,7 +17,7 @@ include(${_rel_path}/fw-update/CMakeLists.txt)
 
 message(STATUS "using ${BACKEND}")
 
-if(UNIX OR (ANDROID_NDK_TOOLCHAIN_INCLUDED AND (${BACKEND} STREQUAL RS2_USE_V4L2_BACKEND)))
+if(UNIX OR FORCE_LIBUVC OR (ANDROID AND (${BACKEND} STREQUAL RS2_USE_V4L2_BACKEND)))
     include(${_rel_path}/libusb/CMakeLists.txt)
 endif()
 

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/all_views"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.example.realsense_app.StreamSurface
+                android:id="@+id/default_stream"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minWidth="240dp"
+                android:minHeight="180dp"
+                android:orientation="vertical"
+                app:DefaultDevice="0"
+                app:DefaultEnable="true"
+                app:DefaultFPS="30"
+                app:DefaultFormat="Z16"
+                app:DefaultHeight="480"
+                app:DefaultStream="Depth"
+                app:DefaultWidth="640" />
+
+            <!-- com.example.realsense_app.StreamSurface
+                android:id="@+id/streamColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minWidth="240dp"
+                android:minHeight="180dp"
+                android:orientation="vertical"
+                app:DefaultDevice="0"
+                app:DefaultEnable="false"
+                app:DefaultFPS="30"
+                app:DefaultFormat="RGB8"
+                app:DefaultHeight="480"
+                app:DefaultStream="Color"
+                app:DefaultWidth="640" />
+
+            <com.example.realsense_app.StreamSurface
+                android:id="@+id/streamIR"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="180dp"
+                android:minWidth="240dp"
+                android:orientation="vertical"
+                app:DefaultEnable="false"
+                app:DefaultDevice="0"
+                app:DefaultFPS="30"
+                app:DefaultFormat="Y8"
+                app:DefaultHeight="480"
+                app:DefaultStream="Infrared"
+                app:DefaultWidth="640" / -->
+
+            <TextView
+                android:id="@+id/logView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="false"
+                android:text="" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <ToggleButton
+        android:id="@+id/toggleButtonPlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:enabled="false"
+        android:textOff="@string/play"
+        android:textOn="@string/stop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/buttonAddView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:text="@string/add_view"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/toggleButtonPlay"
+        app:layout_constraintStart_toEndOf="@+id/toggleButtonPower" />
+
+    <ToggleButton
+        android:id="@+id/toggleButtonPower"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:textOff="@string/off"
+        android:textOn="@string/on"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</android.support.constraint.ConstraintLayout>

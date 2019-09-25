@@ -4,7 +4,8 @@ ExternalProject_Add(
     libusb
 
     GIT_REPOSITORY "https://github.com/libusb/libusb.git"
-    GIT_TAG "2a7372db54094a406a755f0b8548b614ba8c78ec" # "v1.0.22" + Mac get_device_list hang fix
+    # GIT_TAG "2a7372db54094a406a755f0b8548b614ba8c78ec" # "v1.0.22" + Mac get_device_list hang fix
+    GIT_TAG "v1.0.22" # "v1.0.22" for Android https://github.com/libusb/libusb/issues/584
 
     UPDATE_COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${CMAKE_CURRENT_SOURCE_DIR}/third-party/libusb/CMakeLists.txt
@@ -17,6 +18,7 @@ ExternalProject_Add(
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DANDROID_ABI=${ANDROID_ABI}
             -DANDROID_STL=${ANDROID_STL}
+            -DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}
             -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/libusb_install
     TEST_COMMAND ""
     BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/libusb_install/lib/${CMAKE_STATIC_LIBRARY_PREFIX}usb${CMAKE_STATIC_LIBRARY_SUFFIX}
