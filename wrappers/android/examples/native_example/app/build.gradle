@@ -5,7 +5,6 @@ android {
     defaultConfig {
         applicationId "com.example.realsense_native_example"
         minSdkVersion 19
-        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -71,5 +70,3 @@ task extractSo(type: Sync) {
 
 preBuild.dependsOn(extractHeaders)
 preBuild.dependsOn(extractSo)
-
-

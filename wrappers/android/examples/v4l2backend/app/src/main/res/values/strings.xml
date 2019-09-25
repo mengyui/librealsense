@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">realsense_app</string>
+    <string name="at">\@</string>
+    <string name="format_title">FMT:</string>
+    <string name="play">Play</string>
+    <string name="stop">Stop</string>
+    <string name="on">ON</string>
+    <string name="off">OFF</string>
+    <string name="add_view">Add View</string>
+</resources>
