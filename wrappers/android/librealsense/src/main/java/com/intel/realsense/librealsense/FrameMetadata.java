@@ -29,7 +29,10 @@ public enum FrameMetadata {
     GAMMA(25),
     MANUAL_WHITE_BALANCE(26),
     POWER_LINE_FREQUENCY(27),
-    LOW_LIGHT_COMPENSATION(28);
+    LOW_LIGHT_COMPENSATION(28),
+    FRAME_LED_POWER(29),
+    FRAME_LED_POWER_MODE(30),
+    FRAME_PROJECTOR_TYPE(31);
 
     private final int mValue;
 
