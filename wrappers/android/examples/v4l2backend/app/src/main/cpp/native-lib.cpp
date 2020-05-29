@@ -1,14 +1,24 @@
 #include <jni.h>
 
 #include <string>
+#include <sstream>
 #include <thread>
 #include <array>
+#include <map>
 #include <set>
 
 #include <android/native_window_jni.h>
 #include <android/log.h>
 
 #include "librealsense2/rs.hpp"
+
+#define ENABLE_MULTI_SYNC
+
+std::string GetStreamID(rs2_stream stream, int index) {
+    std::stringstream ss;
+    ss << stream << "-" << index;
+    return ss.str();
+}
 
 // trim from end (in place)
 static inline void rtrim(std::string &s, char c) {
@@ -34,24 +44,45 @@ constexpr int clamp(int x) {
 }
 
 static int device_error_count = 0;
+// RS2_OPTION_INTER_CAM_SYNC_MODE
 class DevicePipe {
 public:
     DevicePipe(rs2::context& ctx, int device) : pipe(ctx), enabled(false), isWorking(false) {
-        for(auto it = surface.begin(); it != surface.end(); ++it) {
-            *it = nullptr;
-        }
+        surface.clear();
 
         auto devs = ctx.query_devices();
         if (device < 0 || device >= devs.size()) return;
         sn = devs[device].get_info(rs2_camera_info::RS2_CAMERA_INFO_SERIAL_NUMBER);
+#ifdef ENABLE_MULTI_SYNC
+        devidx = device;
+        {
+            for (auto& sensor: devs[device].query_sensors()) {
+                if (sensor.is<rs2::depth_sensor>()) {
+                    sensor.set_option(RS2_OPTION_INTER_CAM_SYNC_MODE, device == 0? 1: 2);
+                    break;
+                }
+            }
+        }
+#endif // ENABLE_MULTI_SYNC
         cfg.enable_device(sn);
     }
 
     void Start() {
-        __android_log_print(ANDROID_LOG_INFO, "DBG", "pipe.start %s BEGIN %d", sn.c_str(), device_error_count);
+        __android_log_print(ANDROID_LOG_INFO, "DBG", "pipe.start %s = %p BEGIN %d", sn.c_str(), this, device_error_count);
         try {
             auto stream_profiles = pipe.start(cfg);
             isWorking = true;
+            __android_log_print(ANDROID_LOG_INFO, "DBG", "pipe.start STARTED STREAMS on Device %s",
+                    stream_profiles.get_device().get_info(RS2_CAMERA_INFO_SERIAL_NUMBER));
+            for (auto& p: stream_profiles.get_streams()) {
+                auto vp = p.as<rs2::video_stream_profile>();
+                auto stream = vp.stream_name();
+                auto f = rs2_format_to_string(vp.format());
+
+                __android_log_print(ANDROID_LOG_INFO, "DBG", "\t%s %dx%d@%d %s",
+                        stream.c_str(), vp.width(), vp.height(), vp.fps(), f
+                );
+            }
 
 #if 0
             __android_log_print(ANDROID_LOG_INFO, "DBG", "pipe.wait_for_frames BEGIN");
@@ -83,35 +114,43 @@ public:
         enabled = false;
     }
 
-    void EnableStream(int stream, int width, int height, int fps, int format, ANativeWindow * surface) {
-        cfg.enable_stream(static_cast<rs2_stream>(stream), width, height, static_cast<rs2_format>(format), fps);
+    void EnableStream(int stream, int index, int width, int height, int fps, int format, ANativeWindow * surface) {
+        cfg.enable_stream(static_cast<rs2_stream>(stream), index, width, height, static_cast<rs2_format>(format), fps);
 
-        this->surface[stream - 1] = surface;
+        auto id = GetStreamID(static_cast<rs2_stream>(stream), index);
+        this->surface[id] = surface;
         this->enabled = true;
     }
 
     bool GrabFrames(rs2::frameset& frames) {
         if (!isWorking) return false;
-#if 1
+#if 0
         return pipe.poll_for_frames(&frames);
 #else
-        frames = pipe.wait_for_frames();
+        try {
+            frames = pipe.wait_for_frames(1000);
+        } catch (...) {
+            __android_log_print(ANDROID_LOG_DEBUG, "RS native", "wait_for_frames timeout %p", this);
+        }
+
         return true;
 #endif
     }
-    ANativeWindow* GetSurface(rs2_stream stream) {
+    ANativeWindow* GetSurface(rs2_stream stream, int index) {
         if (stream <= rs2_stream::RS2_STREAM_ANY || stream > rs2_stream::RS2_STREAM_INFRARED) {
             return nullptr;
         }
-        return surface[stream - 1];
+
+        auto id = GetStreamID(stream, index);
+        auto s = surface.find(id);
+        if (s == surface.end()) return nullptr;
+        return s->second;
     }
     void ReleaseSurface() {
-        for (int i = 0; i < surface.size(); ++i) {
-            if (surface[i]) {
-                ANativeWindow_release(surface[i]);
-                surface[i] = nullptr;
-            }
+        for (auto s: surface) {
+            ANativeWindow_release(s.second);
         }
+        surface.clear();
     }
     bool IsEnabled(void) {
         return enabled;
@@ -121,7 +160,8 @@ private:
     rs2::pipeline pipe;
     rs2::config cfg;
     std::string sn;
-    std::array<ANativeWindow*, 3> surface;
+    int devidx;
+    std::map<std::string, ANativeWindow*> surface;
     bool enabled;
     bool isWorking;
 };
@@ -187,12 +227,12 @@ public:
         ctx.reset();
     }
 
-    void EnableStream(int device, int stream, int width, int height, int fps, int format, ANativeWindow * surface) {
+    void EnableStream(int device, int stream, int index, int width, int height, int fps, int format, ANativeWindow * surface) {
         if (device < 0 || device >= devices_info.size()) return;
 
         if (!devices_info[device]) devices_info[device] = new DevicePipe(*ctx, device);
 
-        devices_info[device]->EnableStream(stream, width, height, fps, format, surface);
+        devices_info[device]->EnableStream(stream, index, width, height, fps, format, surface);
 
         ANativeWindow_setBuffersGeometry(surface, width, height, WINDOW_FORMAT_RGBX_8888);
     }
@@ -231,39 +271,35 @@ public:
 #endif
         __android_log_print(ANDROID_LOG_DEBUG, "RS native", "FrameLoop BEGIN");
 
-        for(auto dev: devices_info) {
+        for(auto& dev: devices_info) {
             if (dev && dev->IsEnabled()) {
                 dev->Start();
+                std::this_thread::sleep_for(std::chrono::milliseconds (300));
             }
         }
 
         rs2::colorizer colorizer;
         rs2::frameset frames;
         while (isRunning) {
-            for (auto dev: devices_info) {
+            for (auto& dev: devices_info) {
                 if (!dev) continue;
                 if (!dev->IsEnabled()) continue; // Turned Off
 
                 if (dev->GrabFrames(frames)) {
-                    {
-                        auto depth = frames.get_depth_frame();
-                        if (depth) {
-                            auto colorize_depth = colorizer.process(depth);
-                            Draw(dev->GetSurface(rs2_stream::RS2_STREAM_DEPTH), colorize_depth);
-                        }
-                    }
-                    {
-                        auto color = frames.get_color_frame();
-                        if (color) {
-                            Draw(dev->GetSurface(rs2_stream::RS2_STREAM_COLOR), color);
-                        }
-                    }
-                    {
-                        auto ir = frames.get_infrared_frame();
-                        if (ir) {
-                            Draw(dev->GetSurface(rs2_stream::RS2_STREAM_INFRARED), ir);
-                        }
-                    }
+                    frames.foreach_rs([&](rs2::frame f) {
+                        auto profile = f.get_profile();
+                        auto stream = profile.stream_type();
+                        auto idx = profile.stream_index();
+
+                        __android_log_print(ANDROID_LOG_DEBUG, "RS native", "%p %s-%d TS: %f",
+                                dev, rs2_stream_to_string(stream), idx, f.get_timestamp());
+                        //if (stream == RS2_STREAM_DEPTH) {
+                        //    auto colorize_depth = colorizer.process(f);
+                        //    Draw(dev->GetSurface(stream, idx), colorize_depth);
+                        //} else {
+                        //    Draw(dev->GetSurface(stream, idx), f);
+                        //}
+                    });
                 }
             }
         }
@@ -469,8 +505,8 @@ public:
             }
         }
         //__android_log_print(ANDROID_LOG_DEBUG, "RS native", "GetProfileList GetProfileFormatList END");
-
     }
+
     void GetProfileFPSList(std::set<std::string>& out, int device, const std::string& stream, int width, int height) {
         //__android_log_print(ANDROID_LOG_DEBUG, "RS native", "GetProfileList GetProfileFPSList BEGIN");
         auto devs = ctx->query_devices();
@@ -491,6 +527,7 @@ public:
         }
         //__android_log_print(ANDROID_LOG_DEBUG, "RS native", "GetProfileList GetProfileFPSList END");
     }
+
     void GetProfileResolutionList(std::set<std::string>& out, int device, const std::string& stream) {
         //__android_log_print(ANDROID_LOG_DEBUG, "RS native", "GetProfileList GetProfileResolutionList BEGIN");
         auto devs = ctx->query_devices();
@@ -511,6 +548,7 @@ public:
         }
         //__android_log_print(ANDROID_LOG_DEBUG, "RS native", "GetProfileList GetProfileResolutionList END");
     }
+
     void GetDevicesList(std::set<std::string>& out) {
         auto devs = ctx->query_devices();
         __android_log_print(ANDROID_LOG_DEBUG, "RS native", "GetDevicesList BEGIN");
@@ -523,6 +561,7 @@ public:
             out.insert("0");
         }
     }
+
     std::string& GetProfileList(int device, const std::string& stream, int width, int height, int fps) {
         //__android_log_print(ANDROID_LOG_DEBUG, "RS native", "GetProfileList BEGIN");
 
@@ -643,23 +682,19 @@ Java_com_example_realsense_1app_rs2_FormatFromString(JNIEnv *env, jclass type, j
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_realsense_1app_MainActivity_init(JNIEnv *env, jclass type) {
-
     RealSenseWrapper::Init();
-
 }
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_realsense_1app_MainActivity_cleanup(JNIEnv *env, jclass type) {
-
     RealSenseWrapper::Cleanup();
-
 }
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_realsense_1app_MainActivity_enableStream(JNIEnv *env, jclass type,
-                                                          jint device, jint stream,
+                                                          jint device, jint stream, jint index,
                                                           jint width, jint height, jint fps,
                                                           jint format, jobject surface) {
     __android_log_print(ANDROID_LOG_DEBUG, "RS native", "MainActivity_enableStream %d %d, %d %d %d, %d", device, stream, width, height, fps, format);
@@ -668,7 +703,7 @@ Java_com_example_realsense_1app_MainActivity_enableStream(JNIEnv *env, jclass ty
     //__android_log_print(ANDROID_LOG_DEBUG, "RS native", "ANativeWindow_fromSurface %d", (int)(long)_surface);
 
     RealSenseWrapper::GetInstance()->EnableStream(
-            device, stream, width, height, fps, format, _surface
+            device, stream, index, width, height, fps, format, _surface
     );
     //__android_log_print(ANDROID_LOG_DEBUG, "RS native", "MainActivity_enableStream END");
 }
@@ -686,9 +721,7 @@ Java_com_example_realsense_1app_MainActivity_play(JNIEnv *env, jclass type) {
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_realsense_1app_MainActivity_stop(JNIEnv *env, jclass type) {
-
     RealSenseWrapper::GetInstance()->Stop();
-
 }
 
 

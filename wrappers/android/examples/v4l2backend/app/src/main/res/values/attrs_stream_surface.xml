@@ -4,9 +4,11 @@
         <attr name="DefaultEnable" format="boolean" />
         <attr name="DefaultDevice" format="integer" />
         <attr name="DefaultStream" format="string" />
+        <attr name="DefaultIndex" format="integer" />
         <attr name="DefaultFormat" format="string" />
         <attr name="DefaultWidth" format="integer" />
         <attr name="DefaultHeight" format="integer" />
         <attr name="DefaultFPS" format="integer" />
+        <attr name="StreamIndexList" format="string" />
     </declare-styleable>
 </resources>

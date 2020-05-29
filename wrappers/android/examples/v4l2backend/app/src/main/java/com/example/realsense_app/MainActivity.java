@@ -128,10 +128,10 @@ public class MainActivity extends AppCompatActivity {
         StreamSurface.StreamConfig config = surface.getCurrentConfig();
         int type =  rs2.StreamFromString(config.mType);
         //surface.getStreamView().getHolder().getSurface();
-        Log.d("MAINACTIVITY", String.format("Dev: %d Stream: %s w %d h %d fps %d Format: %s",
-                config.mDevice, config.mType, config.mWidth, config.mHeight, config.mFPS, config.mFormat));
+        Log.d("MAINACTIVITY", String.format("Dev: %d Stream: %s %d w %d h %d fps %d Format: %s",
+                config.mDevice, config.mType, config.mIndex, config.mWidth, config.mHeight, config.mFPS, config.mFormat));
         enableStream(config.mDevice,
-                rs2.StreamFromString(config.mType),
+                rs2.StreamFromString(config.mType), config.mIndex,
                 config.mWidth, config.mHeight, config.mFPS,
                 rs2.FormatFromString(config.mFormat),
                 surface.getStreamView().getHolder().getSurface()
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
     public native static void init();
     public native static void cleanup();
-    public native static void enableStream(int device, int stream, int width, int height, int fps, int format, Surface surface);
+    public native static void enableStream(int device, int stream, int index, int width, int height, int fps, int format, Surface surface);
     public native static void play();
     public native static void stop();
 

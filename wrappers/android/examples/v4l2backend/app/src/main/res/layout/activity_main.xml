@@ -30,7 +30,9 @@
                 app:DefaultFormat="Z16"
                 app:DefaultHeight="480"
                 app:DefaultStream="Depth"
-                app:DefaultWidth="640" />
+                app:DefaultIndex="0"
+                app:DefaultWidth="640"
+                app:StreamIndexList="0,1,2" />
 
             <!-- com.example.realsense_app.StreamSurface
                 android:id="@+id/streamColor"

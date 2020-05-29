@@ -67,12 +67,14 @@ public class StreamSurface extends FrameLayout {
 
         mDefaultConfig.mDevice = a.getInt(R.styleable.StreamSurface_DefaultDevice, 0);
         mDefaultConfig.mType = a.getString(R.styleable.StreamSurface_DefaultStream);
+        mDefaultConfig.mIndex = a.getInt(R.styleable.StreamSurface_DefaultIndex, -1);
         mDefaultConfig.mFormat = a.getString(R.styleable.StreamSurface_DefaultFormat);
         mDefaultConfig.mWidth = a.getInt(R.styleable.StreamSurface_DefaultWidth, 640);
         mDefaultConfig.mHeight = a.getInt(R.styleable.StreamSurface_DefaultHeight, 480);
         mDefaultConfig.mFPS = a.getInt(R.styleable.StreamSurface_DefaultFPS, 30);
         mDefaultEnabled = a.getBoolean(R.styleable.StreamSurface_DefaultEnable, false);
 
+        mStreamIndexList = a.getString(R.styleable.StreamSurface_StreamIndexList);
         a.recycle();
     }
 
@@ -87,6 +89,7 @@ public class StreamSurface extends FrameLayout {
         mStreamEnabled = findViewById(R.id.checkBoxEnabled);
         mStreamDevice = findViewById(R.id.spinnerDevice);
         mStreamTypeList = findViewById(R.id.spinnerStream);
+        mStreamIndex = findViewById(R.id.spinnerIndex);
         mStreamResolution = findViewById(R.id.spinnerResolution);
         mStreamFPS = findViewById(R.id.spinnerFPS);
         mStreamFormat = findViewById(R.id.spinnerFormat);
@@ -98,6 +101,7 @@ public class StreamSurface extends FrameLayout {
 
         initSpinner(context, mStreamDevice, device, device);
         initSpinner(context, mStreamTypeList, "Depth,Color,Infrared", mDefaultConfig.mType);
+        initSpinner(context, mStreamIndex, "-1,0,1,2", String.format(Locale.getDefault(), "%d", mDefaultConfig.mIndex));
         initSpinner(context, mStreamFormat, mDefaultConfig.mFormat, mDefaultConfig.mFormat);
         initSpinner(context, mStreamResolution, resolution, resolution);
         initSpinner(context, mStreamFPS, fps, fps);
@@ -239,6 +243,14 @@ public class StreamSurface extends FrameLayout {
         String device = mStreamDevice.getSelectedItem().toString();
         mCurrentConfig.mDevice = Integer.parseInt(device);
     }
+    private void getIndexFromUI() {
+        String index = mStreamIndex.getSelectedItem().toString();
+        if (index.isEmpty()) {
+            mCurrentConfig.mIndex = mDefaultConfig.mIndex;
+        } else {
+            mCurrentConfig.mIndex = Integer.parseInt(index);
+        }
+    }
     private void getWidthAndHeightFromUI() {
         String resolution = mStreamResolution.getSelectedItem().toString();
         String[] _list = resolution.split("x");
@@ -267,6 +279,9 @@ public class StreamSurface extends FrameLayout {
     }
     public void setStreamDeviceList(String list) {
         initSpinner(mStreamDevice.getContext(), mStreamDevice, list, "0");
+    }
+    public void setStreamIndexList(String list) {
+        initSpinner(mStreamIndex.getContext(), mStreamIndex, list, String.format(Locale.getDefault(), "%d", mDefaultConfig.mIndex));
     }
     public void setStreamResolutionList(String list) {
         initSpinner(mStreamResolution.getContext(), mStreamResolution, list, String.format(Locale.getDefault(), "%dx%d", mDefaultConfig.mWidth, mDefaultConfig.mHeight));
@@ -297,6 +312,7 @@ public class StreamSurface extends FrameLayout {
     public StreamConfig getCurrentConfig() {
         getDeviceID();
         mCurrentConfig.mType = mStreamTypeList.getSelectedItem().toString();
+        getIndexFromUI();
         mCurrentConfig.mFormat = mStreamFormat.getSelectedItem().toString();
         getWidthAndHeightFromUI();
         getFPSFromUI();
@@ -313,13 +329,15 @@ public class StreamSurface extends FrameLayout {
         return mStreamView;
     }
 
-    boolean mDefaultEnabled;
     static StreamConfig mDefaultConfig;
+    static String mStreamIndexList;
+    boolean mDefaultEnabled;
     StreamConfig mCurrentConfig = new StreamConfig();
 
     CheckBox mStreamEnabled;
     Spinner mStreamDevice;
     Spinner mStreamTypeList;
+    Spinner mStreamIndex;
     Spinner mStreamResolution;
     Spinner mStreamFPS;
     Spinner mStreamFormat;
@@ -330,6 +348,7 @@ public class StreamSurface extends FrameLayout {
         public int mDevice;
         public String mType;
         public String mFormat;
+        public int mIndex;
         public int mWidth;
         public int mHeight;
         public int mFPS;

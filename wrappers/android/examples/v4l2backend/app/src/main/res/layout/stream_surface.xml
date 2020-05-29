@@ -38,8 +38,18 @@
             android:layout_height="wrap_content"
             android:background="@android:color/background_light"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/spinnerResolution"
+            app:layout_constraintEnd_toStartOf="@+id/spinnerIndex"
             app:layout_constraintStart_toEndOf="@+id/spinnerDevice"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Spinner
+            android:id="@+id/spinnerIndex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/background_light"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/spinnerResolution"
+            app:layout_constraintStart_toEndOf="@+id/spinnerStream"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Spinner
