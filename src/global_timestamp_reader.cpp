@@ -22,7 +22,7 @@ namespace librealsense
     }
 
     CLinearCoefficients::CLinearCoefficients(unsigned int buffer_size) :
-        _base_sample(0, 0),
+        _base_sample(0, 0, 0),
         _buffer_size(buffer_size),
         _time_span_ms(1000) // Spread the linear equation modifications over a whole second.
     {
@@ -40,11 +40,52 @@ namespace librealsense
 
     void CLinearCoefficients::add_value(CSample val)
     {
-        while (_last_values.size() > _buffer_size)
+        // drop the sample more than _buffer_size
+        while (_last_values.size() > (_buffer_size + 1))
         {
             _last_values.pop_back();
         }
-        _last_values.push_front(val);
+
+        bool require_new_sample = false;
+        if (_last_values.size() == (_buffer_size + 1))
+        {
+            auto& back = _last_values.back();
+            if ((val._delay - back._delay) > 60000)
+            {
+                // drop the oldest sample
+                _last_values.pop_back();
+                require_new_sample = true;
+            }
+            else
+            {
+                // drop the longest-delay sample
+                bool found_max = false;
+                double the_max_delay = val._delay;
+                std::deque<CSample>::iterator max_item;
+                double longest_delay = 0;
+                for (auto it = _last_values.begin(); it != _last_values.end(); ++it)
+                {
+                    if (it->_delay >= the_max_delay) {
+                        the_max_delay = it->_delay;
+                        max_item = it;
+                        found_max = true;
+                    }
+                }
+                if (found_max) {
+                    _last_values.erase(max_item);
+                    require_new_sample = true;
+                }
+            }
+        }
+        else
+        {
+            require_new_sample = true;
+        }
+
+        if (require_new_sample) {
+            _last_values.push_front(val);
+        }
+
         calc_linear_coefs();
     }
 
@@ -221,9 +262,10 @@ namespace librealsense
             {
                 _coefs.update_samples_base(sample_hw_time);
             }
-            CSample crnt_sample(sample_hw_time, system_time);
+            CSample crnt_sample(sample_hw_time, system_time, command_delay);
             _coefs.add_value(crnt_sample);
             _is_ready = true;
+            LOG_DEBUG(__FUNCTION__ << " _min_command_delay: " << _min_command_delay << " sample_hw_time: " << sample_hw_time << " system_time: " << system_time);
             return true;
         }
         catch (const io_exception& ex)

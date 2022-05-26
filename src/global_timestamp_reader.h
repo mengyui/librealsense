@@ -20,14 +20,17 @@ namespace librealsense
     class CSample
     {
     public:
-        CSample(double x, double y) :
-            _x(x), _y(y) {};
+        CSample(double x, double y, double delay) :
+            _x(x), _y(y), _delay(delay) {}
+        CSample(const CSample& sample) :
+            _x(sample._x), _y(sample._y), _delay(sample._delay) {}
         CSample& operator-=(const CSample& other);
         CSample& operator+=(const CSample& other);
 
     public:
         double _x;
         double _y;
+        double _delay;
     };
 
     class CLinearCoefficients
