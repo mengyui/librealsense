@@ -39,7 +39,7 @@ inline std::string win_to_utf( const WCHAR * s, int wlen = -1 )
 
 inline std::string win_to_utf( std::wstring const & s )
 {
-    return win_to_utf( s.c_str(), (int) s.length() );
+    return win_to_utf(s.c_str());
 }
 
 
