@@ -1183,8 +1183,9 @@ namespace librealsense
                 else
                 {
                     // mipi devices: all sensors mi=0, except  Accel/Gyro mi=4
-                    all_sensors_present = all_sensors_present &&
-                                           mi_present(devices, 4);
+                    // all_sensors_present = all_sensors_present &&
+                    //                        mi_present(devices, 4);
+                    // mipi devices: not all sensors are required. some of sensors [IR|RGB|IMU] may be not existed.
                 }
             }
 
