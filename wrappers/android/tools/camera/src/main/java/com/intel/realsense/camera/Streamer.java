@@ -19,6 +19,7 @@ import com.intel.realsense.librealsense.ProductLine;
 import com.intel.realsense.librealsense.RsContext;
 import com.intel.realsense.librealsense.Sensor;
 import com.intel.realsense.librealsense.StreamProfile;
+import com.intel.realsense.librealsense.StreamType;
 import com.intel.realsense.librealsense.VideoStreamProfile;
 
 import java.util.List;
@@ -119,6 +120,17 @@ public class Streamer {
                             MotionStreamProfile msp = sp.as(Extension.MOTION_PROFILE);
                             config.enableStream(msp.getType(), msp.getIndex(), 0, 0, msp.getFormat(), msp.getFrameRate());
                             numStreams++;
+                        }
+                    }
+
+                    // open DEPTH/COLOR only, if launched on first time
+                    if (numStreams == 0) {
+                        for(Sensor s: device.querySensors()) {
+                            if(s.is(Extension.DEPTH_SENSOR)) {
+                                config.enableStream(StreamType.DEPTH);
+                            } else if (s.is(Extension.COLOR_SENSOR)) {
+                                config.enableStream(StreamType.COLOR);
+                            }
                         }
                     }
                 }
